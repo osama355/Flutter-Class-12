@@ -1,27 +1,27 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class Api extends StatefulWidget {
-  const Api({Key? key}) : super(key: key);
-
   @override
   _ApiState createState() => _ApiState();
 }
 
 class _ApiState extends State<Api> {
-  getuser() async {
+  getUser() async {
     var users = [];
     var response =
         await http.get(Uri.https('jsonplaceholder.typicode.com', 'users'));
     var jsonData = jsonDecode(response.body);
-    // print(jsonData);
 
     for (var i in jsonData) {
-      UserModel user = UserModel(i['name'], i['username'], i['email']);
+      UserModel user =
+          UserModel(i['name'], i['username'], i['email'], i['company']['name']);
       users.add(user);
     }
+
     return users;
   }
 
@@ -29,11 +29,11 @@ class _ApiState extends State<Api> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: getuser(),
-        builder: (context, snapshot) {
+        future: getUser(),
+        builder: (context, AsyncSnapshot snapshot) {
           if (snapshot.data == null) {
             return Container(
-              child: Text("Nothing in the APi"),
+              child: Text('Nothing is in the Api'),
             );
           } else {
             return ListView.builder(
@@ -41,6 +41,8 @@ class _ApiState extends State<Api> {
                 itemBuilder: (context, i) {
                   return ListTile(
                     title: Text(snapshot.data[i].name),
+                    subtitle: Text(snapshot.data[i].username),
+                    trailing: Text(snapshot.data[i].company),
                   );
                 });
           }
@@ -54,5 +56,6 @@ class UserModel {
   var name;
   var username;
   var email;
-  UserModel(this.name, this.username, this.email);
+  var company;
+  UserModel(this.name, this.username, this.email, this.company);
 }
